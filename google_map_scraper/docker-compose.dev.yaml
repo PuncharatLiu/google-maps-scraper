@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -7,10 +7,10 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - '127.0.0.1:5432:5432'
+      - "127.0.0.1:5433:5432"
     expose:
       - 5432
-    volumes: 
+    volumes:
       - gmapsdev:/var/lib/postgresql/data
     restart: "unless-stopped"
     healthcheck:
@@ -22,7 +22,14 @@ services:
     image: migrate/migrate
     volumes:
       - ./scripts/migrations:/migrations
-    command: ["-path", "/migrations", "-database",  "postgres://postgres:postgres@db:5432/postgres?sslmode=disable", "up"]
+    command:
+      [
+        "-path",
+        "/migrations",
+        "-database",
+        "postgres://postgres:postgres@db:5433/postgres?sslmode=disable",
+        "up",
+      ]
     healthcheck:
       test: "exit 0"
     depends_on:

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/gosom/scrapemate"
 
@@ -36,16 +37,23 @@ func (r *resultWriter) Run(ctx context.Context, in <-chan scrapemate.Result) err
 }
 
 func (r *resultWriter) saveEntry(ctx context.Context, entry *gmaps.Entry) error {
+	fmt.Println("entry: ", entry)
+
 	q := `INSERT INTO results
 		(data)
 		VALUES
-		($1) ON CONFLICT DO NOTHING
+		($1)
+		ON CONFLICT DO NOTHING
+		
 		`
+	// ON CONFLICT DO NOTHING
 
 	data, err := json.Marshal(entry)
 	if err != nil {
 		return err
 	}
+
+	fmt.Println("data: ", data)
 
 	_, err = r.db.ExecContext(ctx, q, data)
 

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"flag"
+	"fmt"
 	"io"
 	"os"
 	"runtime"
@@ -14,6 +15,7 @@ import (
 
 	// postgres driver
 	_ "github.com/jackc/pgx/v5/stdlib"
+	_ "github.com/lib/pq"
 
 	"github.com/gosom/scrapemate"
 	"github.com/gosom/scrapemate/adapters/writers/csvwriter"
@@ -142,6 +144,11 @@ func runFromDatabase(ctx context.Context, args *arguments) error {
 	if err != nil {
 		return err
 	}
+
+	// test
+	stats := db.Stats()
+	fmt.Printf("dDB Stats: MaxOpenConnections: %d, OpenConnections: %d, InUse: %d, Idle: %d\n",
+		stats.MaxOpenConnections, stats.OpenConnections, stats.InUse, stats.Idle)
 
 	provider := postgres.NewProvider(db)
 
@@ -286,10 +293,14 @@ func parseArgs() (args arguments) {
 }
 
 func openPsqlConn(dsn string) (conn *sql.DB, err error) {
+	// The default driver is pgx.
+	// So I change the driver to psql
 	conn, err = sql.Open("pgx", dsn)
 	if err != nil {
 		return
 	}
+
+	fmt.Println("conn: ", conn)
 
 	err = conn.Ping()
 
