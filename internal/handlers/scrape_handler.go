@@ -59,9 +59,6 @@ func ScrapHandler(w http.ResponseWriter, r *http.Request) {
 
 	extractData = data
 
-	// Test
-	fmt.Println("ExtractData: ", extractData)
-
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(extractData); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

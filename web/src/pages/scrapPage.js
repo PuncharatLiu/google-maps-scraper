@@ -2,41 +2,43 @@ import React, { useState } from "react";
 import axios from "axios";
 
 function ScrapPage() {
-  const [data, setData] = useState(null); // Initialize data with null
+  const [data, setData] = useState(null);
+  const [keyword, setKeyword] = useState(null);
 
   return (
     <div>
-      <KeyInput />
-      <ScrapeButton setData={setData} />
+      <KeyInput keyword={keyword} setKeyword={setKeyword} />
+      <ScrapeButton setData={setData} keyword={keyword} />
+      {data && <CrefAndUpload />}
       <CSVTable data={data} />
     </div>
   );
 }
 
-function KeyInput() {
-  const [key, setKey] = useState("");
-
+function KeyInput({ keyword, setKeyword }) {
+  // const [key, setKey] = useState("");
   const handleKeyChange = (event) => {
-    setKey(event.target.value);
-    console.log("key: ", key);
+    setKeyword(event.target.value);
+    console.log("keyword: ", keyword);
   };
 
   return (
     <div>
-      <input placeholder="Type location or key" value={key} onChange={handleKeyChange} />
+      <input placeholder="Type location or key" value={keyword} onChange={handleKeyChange} />
     </div>
   );
 }
 
-function ScrapeButton({ setData }) {
+function ScrapeButton({ setData, keyword }) {
   const handleScrap = async () => {
     try {
       const sendData = {
-        key: "Korean restaurant in Bangkok",
-        name: "test_result.csv",
+        key: keyword,
+        name: "result.csv",
       };
+
       const response = await axios.post('http://localhost:8080/scrape', sendData, {
-        responseType: 'json', // Ensure the response type is JSON
+        responseType: 'json',
       });
 
       // Debug
@@ -77,7 +79,6 @@ function CSVTable({ data }) {
 
   return (
     <div>
-      <h1>Korean Restaurants in Bangkok</h1>
       <table border="1">
         <thead>
           <tr>
@@ -110,6 +111,18 @@ function CSVTable({ data }) {
       </table>
     </div>
   );
+}
+
+function CrefAndUpload() {
+  const handleCrefAndUpload = async () => {
+    await axios.post('http://localhost:8080/cref');
+  }
+
+  return (
+    <div>
+      <button onClick={handleCrefAndUpload}>Cross Reference and Upload</button>
+    </div>
+  )
 }
 
 export default ScrapPage;

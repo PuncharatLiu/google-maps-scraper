@@ -1,5 +1,5 @@
 cache/
 vendor
 bin
-.csv
-.env
+*.csv
+*.env
