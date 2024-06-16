@@ -1,25 +1,50 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+
+import LocationDropdown from "../components/scrape_page/location_dropdown.js";
 
 function ScrapPage() {
   const [data, setData] = useState(null);
-  const [keyword, setKeyword] = useState(null);
+ 
+  const [keyword, setKeyword] = useState(null);  
+  const [location, setLocation] = useState({
+    country: "",
+    state: "",
+    city: ""
+  })
+
+  const [address, setAddress] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+
+  
+  useEffect(() => {
+    const concatAddress = `${keyword} in ${location.city}, ${location.state}, ${location.country}`;
+    setAddress(concatAddress);
+    
+    // debug
+    console.log("address: ", concatAddress);
+  }, [keyword, location]);
+  
+  
 
   return (
     <div>
       <KeyInput keyword={keyword} setKeyword={setKeyword} />
-      <ScrapeButton setData={setData} keyword={keyword} />
+      <LocationDropdown setLocation={setLocation} location={location}/>
+      <ScrapeButton setData={setData} address={address} setIsLoading={setIsLoading} />
+      
       {data && <CrefAndUpload />}
-      <CSVTable data={data} />
+      
+      {isLoading && !data && <div>Scraping...</div>}
+      {!isLoading && !data && <div>No data available. Please click the button to scrape data.</div>}
+      {data && <CSVTable data={data} />}
     </div>
   );
 }
 
 function KeyInput({ keyword, setKeyword }) {
-  // const [key, setKey] = useState("");
   const handleKeyChange = (event) => {
     setKeyword(event.target.value);
-    console.log("keyword: ", keyword);
   };
 
   return (
@@ -29,11 +54,13 @@ function KeyInput({ keyword, setKeyword }) {
   );
 }
 
-function ScrapeButton({ setData, keyword }) {
+function ScrapeButton({ setData, address, setIsLoading }) {
   const handleScrap = async () => {
+    setIsLoading(true)
+
     try {
       const sendData = {
-        key: keyword,
+        key: address,
         name: "result.csv",
       };
 
@@ -50,7 +77,7 @@ function ScrapeButton({ setData, keyword }) {
   };
 
   return (
-    <button onClick={handleScrap}>Scrap</button>
+    <button onClick={handleScrap}>Scrap</button>        
   );
 }
 
@@ -78,7 +105,7 @@ function CSVTable({ data }) {
   }
 
   return (
-    <div>
+    <div>      
       <table border="1">
         <thead>
           <tr>
@@ -108,7 +135,7 @@ function CSVTable({ data }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table>l
     </div>
   );
 }
